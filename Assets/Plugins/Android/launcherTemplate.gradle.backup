@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "com.example.pose"
+    compileSdk 32
+    ndkVersion "23.1.7779620"
+
+    defaultConfig {
+        applicationId "com.example.pose"
+        minSdk 24
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-unity.txt'
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    androidResources {
+        noCompress = ['.ress', '.resource', '.obb'] + unityStreamingAssets.tokenize(', ')
+    }
+    
+    lintOptions {
+        checkReleaseBuilds false  // disable lint for release builds
+        abortOnError false        // don't fail the build if lint finds errors
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.core:core-ktx:1.7.0'
+        force 'androidx.appcompat:appcompat:1.5.1'
+    }
+}
