@@ -1,0 +1,19 @@
+# ninja log v5
+48	3524	7652470258070718	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	8599330d36822678
+57	3709	7652470259864101	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	2a92411041acd239
+8	3566	7652470258438053	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	616c147480a057ff
+13	3867	7652470261146861	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	b3ed3690d37a692f
+29	3593	7652470258714594	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	c7e84d0e2bec46da
+20	3640	7652470259182492	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	37859840f4c65410
+38	4049	7652470263266295	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	5dcf288fda442425
+1	4244	7652470264951469	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e80bad9c35185ce2
+4245	4550	7652470268200122	C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/54233s1d/obj/arm64-v8a/libgame.so	dafd67c9fc3ef747
+58	1479	7652496674419610	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	8599330d36822678
+25	1484	7652496674419610	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	37859840f4c65410
+37	1508	7652496674714167	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	616c147480a057ff
+50	1520	7652496674860104	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	c7e84d0e2bec46da
+66	1708	7652496676648105	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	2a92411041acd239
+18	1810	7652496677754573	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	b3ed3690d37a692f
+44	1996	7652496679676586	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	5dcf288fda442425
+6	2200	7652496681491693	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e80bad9c35185ce2
+2200	2363	7652496683440600	C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/54233s1d/obj/arm64-v8a/libgame.so	dafd67c9fc3ef747

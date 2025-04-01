@@ -1,0 +1,5 @@
+C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/.utmp/RelWithDebInfo/54233s1d/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/.utmp/RelWithDebInfo/54233s1d/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/.utmp/RelWithDebInfo/54233s1d/arm64-v8a/GameActivity/CMakeFiles/game.dir
+C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/.utmp/RelWithDebInfo/54233s1d/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+C:/Users/abhik/Desktop/research/sentis-samples/BlazeDetectionSample/Pose/.utmp/RelWithDebInfo/54233s1d/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
