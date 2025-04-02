@@ -82,87 +82,43 @@ public class ImageSender : MonoBehaviour
     private IEnumerator CaptureAndSendFrame()
     {
         isProcessing = true;
-        
+
         // Get the current WebCamTexture
         WebCamTexture webCamTexture = webCamTextureManager.WebCamTexture;
-        
+
         // Create texture if it doesn't exist or if size changed
         if (readTexture == null || readTexture.width != webCamTexture.width || readTexture.height != webCamTexture.height)
         {
             if (readTexture != null)
                 Destroy(readTexture);
-                
+
             readTexture = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
         }
-        
+
         // Read pixels from WebCamTexture
         readTexture.SetPixels(webCamTexture.GetPixels());
         readTexture.Apply();
-        
-        // Resize if needed
-        Texture2D processedTexture = readTexture;
-        if (maxImageSize > 0 && (readTexture.width > maxImageSize || readTexture.height > maxImageSize))
-        {
-            processedTexture = ResizeTexture(readTexture, maxImageSize);
-        }
-        
+
+        // Log original dimensions
+        Debug.Log($"Original texture dimensions: {readTexture.width}x{readTexture.height}");
+
         // Convert to JPEG
-        byte[] jpgBytes = processedTexture.EncodeToJPG(imageQuality);
-        
+        byte[] jpgBytes = readTexture.EncodeToJPG(imageQuality);
+
+        // Log compression quality
+        Debug.Log($"JPEG compression quality: {imageQuality}, size: {jpgBytes.Length} bytes");
+
         // Convert to Base64
         string base64Image = Convert.ToBase64String(jpgBytes);
-        
+
         // Create payload
         FrameData frameData = new FrameData { frame = base64Image };
         string jsonData = JsonUtility.ToJson(frameData);
-        
+
         // Send to server
         yield return StartCoroutine(SendImageToServer(jsonData));
-        
-        // Clean up if we created a separate texture for resizing
-        if (processedTexture != readTexture)
-        {
-            Destroy(processedTexture);
-        }
-        
+
         isProcessing = false;
-    }
-    
-    private Texture2D ResizeTexture(Texture2D source, int maxSize)
-    {
-        int width = source.width;
-        int height = source.height;
-        float aspectRatio = (float)width / height;
-        
-        if (width > height)
-        {
-            width = maxSize;
-            height = Mathf.RoundToInt(width / aspectRatio);
-        }
-        else
-        {
-            height = maxSize;
-            width = Mathf.RoundToInt(height * aspectRatio);
-        }
-        
-        // Create a new texture with the target size
-        Texture2D result = new Texture2D(width, height, source.format, false);
-        
-        // Scale using bilinear filtering
-        float scaleX = 1.0f / ((float)source.width / width);
-        float scaleY = 1.0f / ((float)source.height / height);
-        
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                Color color = source.GetPixelBilinear(x * scaleX, y * scaleY);
-                result.SetPixel(x, y, color);
-            }
-        }
-        
-        result.Apply();
-        return result;
     }
     
     private IEnumerator SendImageToServer(string jsonData)

@@ -99,9 +99,10 @@ public class PoseDataSender : MonoBehaviour
 
         if (useButtonTrigger)
         {
-            if (OVRInput.GetDown(OVRInput.Button.One) && timeSinceLastButtonPress >= buttonCooldown)
+            // Change button mapping to use a more reliable VR controller button
+            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) && timeSinceLastButtonPress >= buttonCooldown)
             {
-                Debug.Log("A button pressed");
+                Debug.Log("Primary Index Trigger pressed");
                 if (posePreview != null && posePreview.gameObject.activeSelf)
                 {
                     timeSinceLastButtonPress = 0f;
