@@ -10256,7 +10256,7 @@ MonoBehaviour:
   webCamTextureManager: {fileID: 1972463788}
   sendInterval: 0.1
   imageQuality: 75
-  maxImageSize: 640
+  posePreview: {fileID: 5023127968907877657}
   showNetworkStatus: 1
   logSuccessMessages: 0
 --- !u!1 &1995685037

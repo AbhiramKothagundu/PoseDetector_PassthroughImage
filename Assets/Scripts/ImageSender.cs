@@ -13,46 +13,74 @@ public class ImageSender : MonoBehaviour
     [Tooltip("Your Python server's IP address")]
     [SerializeField] private string serverIP = "10.0.55.172";
     [SerializeField] private int serverPort = 5000;
-    
+
     [Header("Camera Settings")]
     [SerializeField] private WebCamTextureManager webCamTextureManager;
     [SerializeField] private float sendInterval = 0.1f; // 10 frames per second
     [SerializeField] private int imageQuality = 75; // JPEG compression quality (0-100)
-    [SerializeField] private int maxImageSize = 640; // Maximum dimension for resizing
-    
+
+    [Header("Pose Data Settings")]
+    [SerializeField] private PosePreview posePreview;
+
     [Header("Debug Settings")]
     [SerializeField] private bool showNetworkStatus = true;
     [SerializeField] private bool logSuccessMessages = false;
-    
+
     private float timeSinceLastSend = 0f;
     private bool isServerConnected = false;
     private string statusMessage = "";
     private int framesSent = 0;
     private Texture2D readTexture;
     private bool isProcessing = false;
-    
+
     [Serializable]
-    private class FrameData
+    private class PayloadData
     {
-        public string frame;
+        public string image_for_opencv;
+        public PoseData blazepose_detections;
     }
-    
+
+    [Serializable]
+    public class PoseData
+    {
+        public List<KeypointData> keypoints = new List<KeypointData>();
+    }
+
+    [Serializable]
+    public class KeypointData
+    {
+        public int index;
+        public float x;
+        public float y;
+        public float z;
+        public bool active;
+
+        public KeypointData(int idx, Vector3 position, bool isActive)
+        {
+            index = idx;
+            x = position.x;
+            y = position.y;
+            z = position.z;
+            active = isActive;
+        }
+    }
+
     private void Start()
     {
         // Update the server URL with the provided IP and port
         serverUrl = $"http://{serverIP}:{serverPort}/api/frame";
-        Debug.Log($"ImageSender initialized. Sending images to: {serverUrl}");
-        
+        Debug.Log($"ImageSender initialized. Sending images and pose data to: {serverUrl}");
+
         // Test connection to the server
         StartCoroutine(TestServerConnection());
     }
-    
+
     private IEnumerator TestServerConnection()
     {
         using (UnityWebRequest request = UnityWebRequest.Get($"http://{serverIP}:{serverPort}/api/ping"))
         {
             yield return request.SendWebRequest();
-            
+
             if (request.result == UnityWebRequest.Result.Success)
             {
                 isServerConnected = true;
@@ -67,19 +95,19 @@ public class ImageSender : MonoBehaviour
             }
         }
     }
-    
+
     private void Update()
     {
         timeSinceLastSend += Time.deltaTime;
-        
+
         if (timeSinceLastSend >= sendInterval && webCamTextureManager.WebCamTexture != null && isServerConnected && !isProcessing)
         {
             timeSinceLastSend = 0f;
-            StartCoroutine(CaptureAndSendFrame());
+            StartCoroutine(CaptureAndSendData());
         }
     }
-    
-    private IEnumerator CaptureAndSendFrame()
+
+    private IEnumerator CaptureAndSendData()
     {
         isProcessing = true;
 
@@ -99,29 +127,54 @@ public class ImageSender : MonoBehaviour
         readTexture.SetPixels(webCamTexture.GetPixels());
         readTexture.Apply();
 
-        // Log original dimensions
-        Debug.Log($"Original texture dimensions: {readTexture.width}x{readTexture.height}");
-
         // Convert to JPEG
         byte[] jpgBytes = readTexture.EncodeToJPG(imageQuality);
-
-        // Log compression quality
-        Debug.Log($"JPEG compression quality: {imageQuality}, size: {jpgBytes.Length} bytes");
-
-        // Convert to Base64
         string base64Image = Convert.ToBase64String(jpgBytes);
 
+        // Collect pose data
+        PoseData poseData = CollectPoseData();
+
         // Create payload
-        FrameData frameData = new FrameData { frame = base64Image };
-        string jsonData = JsonUtility.ToJson(frameData);
+        PayloadData payload = new PayloadData
+        {
+            image_for_opencv = base64Image,
+            blazepose_detections = poseData.keypoints.Count > 0 ? poseData : null
+        };
+
+        string jsonData = JsonUtility.ToJson(payload);
+
+        // Log the payload for debugging
+        Debug.Log($"Payload: {jsonData}");
 
         // Send to server
-        yield return StartCoroutine(SendImageToServer(jsonData));
+        yield return StartCoroutine(SendDataToServer(jsonData));
 
         isProcessing = false;
     }
-    
-    private IEnumerator SendImageToServer(string jsonData)
+
+    private PoseData CollectPoseData()
+    {
+        PoseData poseData = new PoseData();
+
+        if (posePreview != null && posePreview.gameObject.activeSelf)
+        {
+            for (int i = 0; i < posePreview.keypoints.Length; i++)
+            {
+                var keypoint = posePreview.keypoints[i];
+                if (keypoint != null)
+                {
+                    poseData.keypoints.Add(new KeypointData(i, keypoint.Position, keypoint.IsActive));
+                }
+            }
+        }
+
+        // Log pose data for debugging
+        Debug.Log($"Collected Pose Data: {poseData.keypoints.Count} keypoints");
+
+        return poseData;
+    }
+
+    private IEnumerator SendDataToServer(string jsonData)
     {
         using (UnityWebRequest request = new UnityWebRequest(serverUrl, "POST"))
         {
@@ -130,15 +183,15 @@ public class ImageSender : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
             request.timeout = 5; // 5 second timeout
-            
+
             yield return request.SendWebRequest();
-            
+
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Error sending image: {request.error}");
+                Debug.LogError($"Error sending data: {request.error}");
                 isServerConnected = false;
                 statusMessage = $"Send error: {request.error}";
-                
+
                 // Test connection again
                 StartCoroutine(TestServerConnection());
             }
@@ -147,13 +200,13 @@ public class ImageSender : MonoBehaviour
                 framesSent++;
                 if (logSuccessMessages)
                 {
-                    Debug.Log($"Image sent successfully (frame {framesSent})");
+                    Debug.Log($"Data sent successfully (frame {framesSent})");
                 }
                 statusMessage = $"Frames sent: {framesSent}";
             }
         }
     }
-    
+
     private void OnGUI()
     {
         if (showNetworkStatus)
@@ -161,16 +214,16 @@ public class ImageSender : MonoBehaviour
             GUIStyle networkStyle = new GUIStyle();
             networkStyle.fontSize = 24;
             networkStyle.normal.textColor = isServerConnected ? Color.green : Color.red;
-            
+
             // Display server status in bottom-left corner
-            GUI.Label(new Rect(10, Screen.height - 60, 500, 50), 
-                isServerConnected ? 
-                    $"Python server: {serverIP}:{serverPort} | {statusMessage}" : 
-                    $"Server disconnected: {serverIP}:{serverPort}", 
+            GUI.Label(new Rect(10, Screen.height - 60, 500, 50),
+                isServerConnected ?
+                    $"Python server: {serverIP}:{serverPort} | {statusMessage}" :
+                    $"Server disconnected: {serverIP}:{serverPort}",
                 networkStyle);
         }
     }
-    
+
     private void OnDestroy()
     {
         if (readTexture != null)
