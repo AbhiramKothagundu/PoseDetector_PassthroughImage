@@ -26,6 +26,9 @@ public class ImageSender : MonoBehaviour
     [SerializeField] private bool showNetworkStatus = true;
     [SerializeField] private bool logSuccessMessages = false;
 
+    [Header("Game State Settings")]
+    [SerializeField] private GameStateController gameStateController; // Reference to GameStateController
+
     private float timeSinceLastSend = 0f;
     private bool isServerConnected = false;
     private string statusMessage = "";
@@ -38,6 +41,8 @@ public class ImageSender : MonoBehaviour
     {
         public string image_for_opencv;
         public PoseData blazepose_detections;
+        public string game_state; // Add game state
+        public QuestValues quest_values; // Add VR data
     }
 
     [Serializable]
@@ -138,7 +143,9 @@ public class ImageSender : MonoBehaviour
         PayloadData payload = new PayloadData
         {
             image_for_opencv = base64Image,
-            blazepose_detections = poseData.keypoints.Count > 0 ? poseData : null
+            blazepose_detections = poseData.keypoints.Count > 0 ? poseData : null,
+            game_state = gameStateController.CurrentGameState, // Add game state
+            quest_values = gameStateController.CurrentQuestValues // Add VR data
         };
 
         string jsonData = JsonUtility.ToJson(payload);
